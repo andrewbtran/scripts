@@ -7,15 +7,17 @@
 #Step 7. menino <- subset(menino, Start.Date >= "1993-07-12")
 
 
-genderpayroll <- function(dataset, genderclm, salaryclm, departmentclm, titleclm) {
+genderpayroll <- function(dataset, genderclm, salaryclm, departmentclm, titleclm, unionclm, ethnicclm) {
 
+library(xlsx)
+  
 females=subset(dataset, genderclm=="F")
 
 males=subset(dataset, genderclm=="M")
 
 titles = table(departmentclm, genderclm)
 
-write.csv(titles, "martypartmentstotal.csv")
+write.xlsx(titles, "Mahty.xlsx", sheetName="Sheet1", col.names=TRUE, row.names=TRUE)
 
 meandepartments = tapply(salaryclm, departmentclm, mean)
 
@@ -62,13 +64,19 @@ diffs = merge(mediandiff, meandiff, by="Title")
 
 
 DEPARTMEN=merge(department, diffs, by="Title")
-write.csv(DEPARTMEN, file="MartyDepartments.csv")
+##write.csv(DEPARTMEN, file="MartyDepartments.csv")
+
+write.xlsx(DEPARTMEN, "Mahty.xlsx", sheetName="Sheet2", col.names=TRUE, row.names=TRUE, append=TRUE)
+
 
 #Title time
 
 titles = table(titleclm, genderclm)
 
-write.csv(titles, "martytitlestotal.csv")
+##write.csv(titles, "martytitlestotal.csv")
+
+write.xlsx(titles, "Mahty.xlsx", sheetName="Sheet3", col.names=TRUE, row.names=TRUE, append=TRUE)
+
 
 meantitles = tapply(salaryclm, titleclm, mean)
 
@@ -113,29 +121,48 @@ meandiff = data.frame(Title=names(diff2), Mean_Diff=diff2)
 
 diffs = merge(mediandiff, meandiff, by="Title")
 
-
 Titles=merge(title, diffs, by="Title")
-write.csv(Titles, file="MartyTitles.csv")
 
-titles = table(titleclm, genderclm)
+##write.csv(Titles, file="MartyTitles.csv")
 
-
-mean(males$Annual.Rt)
-median(males$Annual.Rt)
+write.xlsx(Titles, "Mahty.xlsx", sheetName="Sheet4", col.names=TRUE, row.names=TRUE, append=TRUE)
 
 
-mean(females$Annual.Rt)
-median(females$Annual.Rt)
+#summary time
 
-tapply(males$Annual.Rt, males$Union.Status, median)
-tapply(females$Annual.Rt, females$Union.Status, median)
+total <- table(genderclm)
 
-tapply(males$Annual.Rt, males$Union.Status, mean)
-tapply(females$Annual.Rt, females$Union.Status, mean)
+total <- cbind(total, table(genderclm, unionclm))
 
+write.xlsx(total, "Mahty.xlsx", sheetName="Sheet6", col.names=TRUE, row.names=TRUE, append=TRUE)
 
+maleAverage <- mean(males$Annual.Rt, na.rm=TRUE)
+femaleAverage <-mean(females$Annual.Rt)
+maleMedian <- median(males$Annual.Rt, na.rm=TRUE)
+femaleMedian <- median(females$Annual.Rt)
 
-#####
+summary <- rbind(maleAverage, femaleAverage, maleMedian, femaleMedian)
+
+write.xlsx(summary, "Mahty.xlsx", sheetName="Sheet7", col.names=TRUE, row.names=TRUE, append=TRUE)
+
+menMedian <- tapply(males$Annual.Rt, males$Union.Status, median, na.rm=TRUE)
+womenMedian <- tapply(females$Annual.Rt, females$Union.Status, median)
+menAverage <- tapply(males$Annual.Rt, males$Union.Status, mean, na.rm=TRUE)
+womenAverage <- tapply(females$Annual.Rt, females$Union.Status, mean)
+
+summary2 <- rbind(menAverage, womenAverage, menMedian, womenMedian)
+
+write.xlsx(summary2, "Mahty.xlsx", sheetName="Sheet8", col.names=TRUE, row.names=TRUE, append=TRUE)
+
+summary3 <- table(ethnicclm)
+
+EthnicityAverage <- tapply(salaryclm, ethnicclm, mean)
+EthnicityMedian <- tapply(salaryclm, ethnicclm, median)
+
+ethnicity <- rbind(summary3, EthnicityAverage, EthnicityMedian)
+
+write.xlsx(ethnicity, "Mahty.xlsx", sheetName="Ethnicity", col.names=TRUE, row.names=TRUE, append=TRUE)
+
 
 
 }
